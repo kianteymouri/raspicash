@@ -1,0 +1,117 @@
+import os
+import cv2
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import RPi.GPIO as GPIO
+import time
+from gtts import gTTS
+import pygame
+
+# Initialize pygame mixer
+pygame.mixer.init()
+
+# Define the GPIO pin for the button
+BUTTON_PIN = 18  # Adjust this based on your setup
+
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Button pin as input with pull-up resistor
+
+# Initialize the camera
+camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(640, 480))
+
+# Allow the camera to warm up
+time.sleep(0.1)
+
+def capture_and_compare(channel):
+    """
+    Captures an image using the PiCamera, converts it to grayscale, resizes it,
+    compares it to reference images using AKAZE, and prints the best match.
+    """
+    # Capture an image
+    camera.capture(rawCapture, format="bgr")
+    image = rawCapture.array
+
+    # Convert to grayscale
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Resize the image for uniformity
+    resized_image = cv2.resize(gray_image, (300, 300))
+
+    # Clear the stream for the next capture
+    rawCapture.truncate(0)
+
+    # Load reference images (adjust paths as needed)
+    reference_images = {
+        "1f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "1b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "5f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "5b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "10f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "10b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "20f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "20b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20b.jpg"), cv2.IMREAD_GRAYSCALE),
+    }
+
+    # Initialize AKAZE detector and BFMatcher
+    akaze = cv2.AKAZE_create()
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+
+    # Detect features in the captured image
+    kp1, des1 = akaze.detectAndCompute(resized_image, None)
+
+    best_match = None
+    max_good_matches = 0
+
+    # Compare with each reference image
+    for label, ref_image in reference_images.items():
+        kp2, des2 = akaze.detectAndCompute(ref_image, None)
+        
+        # Match descriptors
+        matches = bf.match(des1, des2)
+        
+        # Sort matches by distance (best matches first)
+        matches = sorted(matches, key=lambda x: x.distance)
+        
+        # Filter good matches (for example, matches with distance < threshold)
+        good_matches = [m for m in matches if m.distance < 30]  # Adjust the threshold as needed
+
+        # Update best match if this image has more good matches
+        if len(good_matches) > max_good_matches:
+            max_good_matches = len(good_matches)
+            best_match = label
+
+    # Print the best match and number of good matches found
+    print(f"Best match: {best_match} with {max_good_matches} good matches")
+
+    # Convert text to speech and save to a temporary file
+    tts_text = f"Best match: {best_match}, with {max_good_matches} good matches."
+    tts = gTTS(text=tts_text, lang='en')
+    tts.save("output.mp3")
+
+    # Play the audio using pygame mixer
+    pygame.mixer.music.load("output.mp3")
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        continue
+
+# Set up interrupt on button press
+GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, callback=capture_and_compare, bouncetime=300)
+
+try:
+    print("Ready to capture image. Press the button to start...")
+
+    # Keep the script running until interrupted
+    while True:
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print("Cleaning up GPIO...")
+    GPIO.cleanup()
+
+finally:
+    # Cleanup
+    camera.close()
