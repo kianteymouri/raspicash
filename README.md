@@ -8,19 +8,29 @@ Setting up the Raspberry Pi
 
 1. Installing raspbian
   
-3. Connecting camera module
+2. Connecting camera module
 
-  
-5. Install opencv
+3. Install opencv
+
+   
 
 Code
-Write Python code to run Akaze
-Take library photos for the set
-Add a button and LED
 
-Case
+1. Write Python code to run Akaze
+   
+2.Take library photos for the set
 
-Test and Modify
+3.Add a button and LED
+
+
+
+
+
+Build Case for testing and later final
+
+
+Final Test and Modify
+
 
 Use contrib to run on boot
 
