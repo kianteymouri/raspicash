@@ -10,16 +10,14 @@ Setting up the Raspberry Pi
   
   2. Connecting camera module
 
-  3. Install opencv
+  3. Install opencv: installOpenCV
 
    
 
 Code
 
-  1. Write Python code to run Akaze
-   
-  2. Take library photos for the set
-
+  1. Take library photos for the set: libraryimagecapture
+  2. Write Python code to run Akaze: comp
   3. Add a button and LED
 
 
