@@ -1,0 +1,28 @@
+first check if installed:
+python3
+import cv2
+
+if error it is not installed
+
+input following commands in pi terminal
+
+sudo apt-get update 
+sudo apt-get upgrade 
+sudo apt-get install build-essential cmake git pkg-config libjpeg-dev libtiff-dev libjasper-dev libpng-dev 
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev 
+sudo apt-get install libxvidcore-dev libx264-dev 
+sudo apt-get install libgtk-3-dev 
+sudo apt-get install libatlas-base-dev gfortran 
+sudo apt-get install python3-dev
+sudo apt-get install python3-pip
+sudo apt-get install python3-opencv
+
+now check again
+pythong3
+import cv2
+
+
+enable camera
+sudo raspi-config
+--->enable camera
+sudo pip3 install picamera[array]
