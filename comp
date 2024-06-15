@@ -46,14 +46,14 @@ def capture_and_compare(channel):
 
     # Load reference images (adjust paths as needed)
     reference_images = {
-        "1f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1f.jpg"), cv2.IMREAD_GRAYSCALE),
-        "1b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1b.jpg"), cv2.IMREAD_GRAYSCALE),
-        "5f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5f.jpg"), cv2.IMREAD_GRAYSCALE),
-        "5b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5b.jpg"), cv2.IMREAD_GRAYSCALE),
-        "10f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10f.jpg"), cv2.IMREAD_GRAYSCALE),
-        "10b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10b.jpg"), cv2.IMREAD_GRAYSCALE),
-        "20f": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20f.jpg"), cv2.IMREAD_GRAYSCALE),
-        "20b": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "One Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "One Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Five Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Five Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/5b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Ten Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Ten Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/10b.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Twenty Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20f.jpg"), cv2.IMREAD_GRAYSCALE),
+        "Twenty Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/20b.jpg"), cv2.IMREAD_GRAYSCALE),
     }
 
     # Initialize AKAZE detector and BFMatcher
@@ -85,10 +85,10 @@ def capture_and_compare(channel):
             best_match = label
 
     # Print the best match and number of good matches found
-    print(f"Best match: {best_match} with {max_good_matches} good matches")
+    print(f"This is more likely a {best_match} with {max_good_matches} certainty matches")
 
     # Convert text to speech and save to a temporary file
-    tts_text = f"Best match: {best_match}, with {max_good_matches} good matches."
+    tts_text = f"This is most likely a {best_match}, with {max_good_matches} certainty matches."
     tts = gTTS(text=tts_text, lang='en')
     tts.save("output.mp3")
 
