@@ -10,7 +10,7 @@ import pygame
 # Initialize pygame mixer
 pygame.mixer.init()
 
-# Define the GPIO pin for the button
+# GPIO for button
 BUTTON_PIN = 18  # Adjust this based on your setup
 
 # Set up GPIO
@@ -38,13 +38,13 @@ def capture_and_compare(channel):
     # Convert to grayscale
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Resize the image for uniformity
+    # Resize the image
     resized_image = cv2.resize(gray_image, (300, 300))
 
     # Clear the stream for the next capture
     rawCapture.truncate(0)
 
-    # Load reference images (adjust paths as needed)
+    # Load library images (adjust paths as needed)
     reference_images = {
         "One Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1f.jpg"), cv2.IMREAD_GRAYSCALE),
         "One Dollar bill": cv2.imread(os.path.expanduser("~/Desktop/myfiles/1b.jpg"), cv2.IMREAD_GRAYSCALE),
