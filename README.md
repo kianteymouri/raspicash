@@ -27,6 +27,9 @@ Code
 Build Case for testing and later final
 
 
+![IMG_9946](https://github.com/kianteymouri/raspicash/assets/96223486/45181bdb-3ddf-40f8-a370-56ccd2923e0d)
+
+
 Final Test and Modify
 
 
