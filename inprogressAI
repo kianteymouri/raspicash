@@ -1,0 +1,81 @@
+import openai
+import base64
+import requests
+#import os
+import picamera
+import numpy as np
+
+# Create an instance of the PiCamera class
+camera = picamera.PiCamera()
+
+# Set camera resolution (optional)
+camera.resolution = (1024, 768)
+
+# Create a NumPy array to hold the image
+image_array = np.empty((768, 1024, 3), dtype=np.uint8)
+
+# Capture an image and store it in the array
+camera.capture(image_array, 'rgb')
+
+# Display the shape of the captured image array
+print(f"Image shape: {image_array.shape}")
+
+# Optionally, save the image to a file
+from PIL import Image
+image = Image.fromarray(image_array)
+image.save('captured_image.jpg')
+# Close the camera
+camera.close()
+
+# OpenAI API Key
+#not our key
+#api_key = "sk-proj-r1OeWY55JmLyQps5qbVcT3BlbkFJ6zGNwoCLpTqrTET5aC8u"
+#first key
+#api_key = "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"
+api_key = "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"
+# Path to your image
+image_path = image
+
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
+
+
+
+# Getting the base64 string
+base64_image = encode_image(image_path)
+
+headers = {
+  "Content-Type": "application/json",
+  "Authorization": f"Bearer {api_key}"
+}
+
+payload = {
+  "model": "gpt-4o",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": '''which denomination of bill is this? Your output should only be one word.
+          '''
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": f"data:image/jpeg;base64,{base64_image}"
+          }
+        }
+      ]
+    }
+  ],
+  "max_tokens": 300
+}
+
+response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+
+
+#print(response.json())
+print(response.json()['choices'][0]['message']['content'])
