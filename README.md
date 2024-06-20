@@ -36,7 +36,11 @@ Final Test and Modify
 
 
 Use contrib to run on boot
-
+  - open terminal, type:
+  - python3 /home/pi/Desktop/comp.py
+  - sudo crontab -e
+  - drop down to bottom of file and type: @reboot python3 /home/pi/Desktop/comp.py &
+  - cntrl s(save) and cntrl x(exit)
 
 
 Youtube video with explanation: 
