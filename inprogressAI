@@ -1,15 +1,15 @@
 import openai
 import base64
 import requests
-import pytesseract
+#import pytesseract
 from PIL import Image
 import numpy as np
 import picamera
-import tempfile
-import os
+#import tempfile
+#import os
 
 # OpenAI API key setup (replace 'your_api_key' with your actual API key)
-api_key  = 'get ellas api'
+api_key  = 'your_api_key'
 openai.api_key = api_key
 
 # Capture the image using PiCamera
@@ -36,45 +36,35 @@ def encode_image(image_path):
 base64_image = encode_image(image_path)
 print(f'Base64 Encoded Image: {base64_image[:100]}...')  # Print the first 100 characters for brevity
 
-# Perform OCR on the image using pytesseract
-text = pytesseract.image_to_string(image)
-print(f'Extracted Text: {text}')
-
-# Check if OCR extracted any text
-if not text.strip():
-    print("No text found in the image. Please ensure the image has clear readable text.")
-else:
-    # Use the OpenAI API to process the extracted text with gpt-3.5-turbo
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Process the following text extracted from an image: {text}"}
-        ],
-        max_tokens=150
-    )
-
-    # Print the response from OpenAI
-    print(f'OpenAI Response: {response["choices"][0]["message"]["content"].strip()}')
-
-# Use the OpenAI API to identify the denomination of the bill based on the image
 headers = {
-    "Content-Type": "application/json",
-    "Authorization": f"Bearer {api_key}"
+  "Content-Type": "application/json",
+  "Authorization": f"Bearer {api_key}"
 }
 
 payload = {
-    "model": "gpt-3.5-turbo",
-    "messages": [
+  "model": "gpt-4o",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
         {
-            "role": "user",
-            "content": f"Here is an image of the corner a bill. Identify the denomination: data:image/jpeg;base64,{base64_image}"
+          "type": "text",
+          "text": '''which denomination of bill is this? Your output should only be one word.
+          '''
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": f"data:image/jpeg;base64,{base64_image}"
+          }
         }
-    ],
-    "max_tokens": 50
+      ]
+    }
+  ],
+  "max_tokens": 300
 }
 
 response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
 
 # Print the response from OpenAI
-print(response.json()['choices'][0]['message']['content'].strip())
+print(response.json()['choices'][0]['message']['content'])
