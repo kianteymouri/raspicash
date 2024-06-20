@@ -49,7 +49,7 @@ payload = {
       "content": [
         {
           "type": "text",
-          "text": '''which denomination of bill is this? Your output should only be one word.
+          "text": '''which denomination of bill is this? output: "_____ dollar bill"
           '''
         },
         {
