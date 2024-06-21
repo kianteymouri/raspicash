@@ -1,42 +1,84 @@
-from picamera.array import PiRGBArray 
-from picamera import PiCamera 
-import time 
-import cv2 
-from datetime import datetime 
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+import cv2
+from datetime import datetime
+import os
+import RPi.GPIO as GPIO
 
-# Initialize the camera 
-camera = PiCamera() 
-camera.resolution = (640, 480) 
-camera.framerate = 32 
-rawCapture = PiRGBArray(camera, size=(640, 480)) 
+# GPIO for button and LED
+BUTTON_PIN = 18
+LED_PIN = 27
+
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Button pin as input with pull-up resistor
+GPIO.setup(LED_PIN, GPIO.OUT)  # LED pin as output
+GPIO.output(LED_PIN, GPIO.LOW)  # Ensure the LED is off initially
+
+directory = os.path.expanduser("~/Desktop/myfiles")
+
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+# Initialize the camera
+camera = PiCamera()
+camera.resolution = (640, 480)
+camera.framerate = 32
+rawCapture = PiRGBArray(camera, size=(640, 480))
 
 # Allow the camera to warm up
- time.sleep(0.1) 
+time.sleep(0.1)
 
-try: 
+def capture_image():
+    """
+    Captures an image using the PiCamera, converts it to grayscale, resizes it,
+    and saves it to a specified directory.
+    """
+    # Turn on LED
+    GPIO.output(LED_PIN, GPIO.HIGH)
 
-    # Capture an image 
-    camera.capture(rawCapture, format="bgr") 
+    # Capture an image
+    camera.capture(rawCapture, format="bgr")
     image = rawCapture.array
 
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     resized_image = cv2.resize(gray_image, (300, 300))
 
-     # Generate a filename with the current timestamp 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") 
-    filename = f"image_{timestamp}.jpg"
+    # Saving it to myfiles
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(directory, f"image_{timestamp}.jpg")
+    cv2.imwrite(filename, resized_image)
 
-     # Save the image to a file 
-    cv2.imwrite(filename, image) 
+    # Display the image using OpenCV
+    cv2.imshow("Image", resized_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    # Display the image using OpenCV 
-    cv2.imshow("Image", image) 
-    cv2.waitKey(0) 
-    cv2.destroyAllWindows() 
+    print(f"Image saved as {filename}")
+    rawCapture.truncate(0)  # Clear the stream for the next frame
 
-    print(f"Image saved as {filename}") 
+    # Turn off LED
+    GPIO.output(LED_PIN, GPIO.LOW)
 
-    except Exception as e: print(f"An error occurred: {e}") 
+def button_callback(channel):
+    capture_image()
+
+# Set up interrupt on button press
+GPIO.add_event_detect(BUTTON_PIN, GPIO.FALLING, callback=button_callback, bouncetime=300)
+
+try:
+    print("Ready to capture image. Press the button to start...")
+
+    # Keep the script running until interrupted
+    while True:
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print("Cleaning up GPIO...")
+    GPIO.cleanup()
 
 finally:
+    # Cleanup
     camera.close()
+    GPIO.cleanup()
