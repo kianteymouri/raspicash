@@ -43,5 +43,5 @@ Use contrib to run on boot
   - cntrl s(save) and cntrl x(exit)
 
 
-Youtube video with explanation: 
+Youtube video with explanation: https://youtu.be/M_27npWW83U?si=BIBR35mIl8fUSnlc 
 
